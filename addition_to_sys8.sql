@@ -63,7 +63,7 @@ BEGIN
 performance_schema.replication_group_members WHERE MEMBER_STATE != 'ONLINE') >=
 ((SELECT COUNT(*) FROM performance_schema.replication_group_members)/2) = 0),
 'YES', 'NO' ) FROM performance_schema.replication_group_members JOIN
-performance_schema.replication_group_member_stats USING(member_id)) where member_id=@@server_uuid;
+performance_schema.replication_group_member_stats USING(member_id) where member_id=@@server_uuid);
 END$$
 
 CREATE VIEW gr_member_routing_candidate_status AS SELECT
