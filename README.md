@@ -59,11 +59,11 @@ Usage example::
 
 To install the missing functions and views, please import ```addition_to_sys.sql```:
 
-** MySQL 57 **
+**MySQL 57**
 
     mysql < addition_to_sys.sql 
 
-** MySQL 80 **
+**MySQL 80**
 
-   mysql < addition_to_sys8.sql 
+    mysql < addition_to_sys8.sql 
 
