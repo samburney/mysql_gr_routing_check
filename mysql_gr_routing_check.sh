@@ -12,10 +12,10 @@
 # mysql_gr_routing_check.sh <MAX_QUEUE> <READ|WRITE>
 
 # This password method is insecure and should not be used in a production environment!
-MYSQL_USERNAME="check"
-MYSQL_PASSWORD="fred"
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
+MYSQL_USERNAME="${MYSQL_USERNAME:=check}"
+MYSQL_PASSWORD="${MYSQL_PASSWORD:=fred}"
+MYSQL_HOST="${MYSQL_HOST:=localhost}"
+MYSQL_PORT="${MYSQL_PORT:=3306}"
 
 MAXQUEUE=${1-100}
 ROLE=${2-WRITE}
@@ -31,10 +31,11 @@ then
     echo -en "\r\n"
     echo -en "Group Replication member is not a viable routing candidate:\r\n"
     echo -en "maxqueue argument is not a valid value: ($MAXQUEUE).\r\n"
+	sleep 1
     exit 1
 fi
 
-echo $(mysql --no-defaults -BN --connect-timeout=10 --host=$MYSQL_HOST --port=$MYSQL_PORT --user="$MYSQL_USERNAME" --password="$MYSQL_PASSWORD" -e 'SELECT * FROM sys.gr_member_routing_candidate_status' 2>/dev/null) | while read candidate readonly queue
+echo $(mysql --no-defaults -BN --connect-timeout=10 --host=$MYSQL_HOST --port=$MYSQL_PORT --user="$MYSQL_USERNAME" --password="$MYSQL_PASSWORD" -e 'SELECT * FROM sys.gr_member_routing_candidate_status' 2>/dev/null) | while read candidate readonly queue cert
 do
 
 if [ "$candidate" == "YES" ]
@@ -51,6 +52,7 @@ then
 	    echo -en "Content-Length: 40\r\n"
 	    echo -en "\r\n"
 	    echo -en "Group Replication member is a viable routing candidate for $ROLE.\r\n"
+		sleep 1
 	    exit 0
        else
 	    # Member is not a vaiable routing candidate => return HTTP 503
@@ -62,6 +64,7 @@ then
 	    echo -en "\r\n"
 	    echo -en "Group Replication member is not a viable routing candidate:\r\n"
             echo -en "queue exceeds ($queue) threshold ($MAXQUEUE).\r\n"
+			sleep 1
     	    exit 1
        fi
    elif [ "${ROLE^^}" == "WRITE" ]
@@ -77,6 +80,7 @@ then
 	    echo -en "\r\n"
 	    echo -en "Group Replication member is not a viable routing candidate:\r\n"
             echo -en "$ROLE cannot be routed to a readonly member.\r\n"
+			sleep 1
     	    exit 1
        else
 	       if [ $queue -lt $MAXQUEUE ]
@@ -89,7 +93,8 @@ then
 		    echo -en "Content-Length: 40\r\n"
 		    echo -en "\r\n"
 		    echo -en "Group Replication member is a viable routing candidate for $ROLE.\r\n"
-		    exit 0
+		    sleep 1
+			exit 0
 	       else
 		    # Member is not a vaiable routing candidate => return HTTP 503
 		    # Shell return-code is 1
@@ -100,7 +105,8 @@ then
 		    echo -en "\r\n"
 		    echo -en "Group Replication member is not a viable routing candidate:\r\n"
 		    echo -en "queue exceeds ($queue) threshold ($MAXQUEUE).\r\n"
-		    exit 1
+		    sleep 1
+			exit 1
 	       fi
        fi
    else
@@ -113,7 +119,8 @@ then
        echo -en "\r\n"
        echo -en "Group Replication member is not a viable routing candidate:\r\n"
        echo -en "$ROLE is not a valid argument.\r\n"
-       exit 1
+       sleep 1
+	   exit 1
    fi
 fi
 
